@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html>
+    <html><head>
+        <title>TechQuest - Your Personal Tech Career Guide</title>
+        
+        <style>
+        :root {
+          --primary: #4A90E2;
+          --secondary: #6C63FF;
+          --accent: #FF6B6B;
+          --bg: #F8F9FA;
+          --text: #2D3436;
+        }
+        
+        body {
+          font-family: 'Inter', sans-serif;
+          margin: 0;
+          padding: 0;
+          background: var(--bg);
+          color: var(--text);
+        }
+        
+        .app-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 2rem;
+        }
+        
+        .welcome-section {
+          text-align: center;
+          padding: 4rem 0;
+          background: linear-gradient(135deg, var(--primary), var(--secondary));
+          color: white;
+          border-radius: 20px;
+          margin-bottom: 2rem;
+        }
+        
+        .assessment-container {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+          gap: 2rem;
+          margin-top: 2rem;
+        }
+        
+        .assessment-card {
+          background: white;
+          padding: 2rem;
+          border-radius: 15px;
+          box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+          transition: transform 0.3s ease;
+        }
+        
+        .assessment-card:hover {
+          transform: translateY(-5px);
+        }
+        
+        .progress-bar {
+          width: 100%;
+          height: 10px;
+          background: #eee;
+          border-radius: 5px;
+          margin: 1rem 0;
+          overflow: hidden;
+        }
+        
+        .progress-fill {
+          height: 100%;
+          background: var(--primary);
+          width: 0%;
+          transition: width 1s ease;
+        }
+        
+        .btn {
+          background: var(--primary);
+          color: white;
+          border: none;
+          padding: 1rem 2rem;
+          border-radius: 25px;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: transform 0.2s ease;
+        }
+        
+        .btn:hover {
+          transform: scale(1.05);
+        }
+        
+        .btn:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+          transform: none;
+        }
+        
+        .btn:disabled:hover {
+          transform: none;
+        }
+        
+        .floating-guide {
+          position: fixed;
+          bottom: 2rem;
+          right: 2rem;
+          background: white;
+          padding: 1rem;
+          border-radius: 50%;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          cursor: pointer;
+          animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-10px); }
+        }
+        
+        .assessment-progress {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 2rem;
+        }
+        
+        .progress-step {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          flex: 1;
+          position: relative;
+        }
+        
+        .progress-step:not(:last-child)::after {
+          content: '';
+          position: absolute;
+          top: 15px;
+          right: -50%;
+          width: 100%;
+          height: 2px;
+          background: #eee;
+          z-index: 0;
+        }
+        
+        .step-indicator {
+          width: 30px;
+          height: 30px;
+          border-radius: 50%;
+          background: #eee;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: 0.5rem;
+          position: relative;
+          z-index: 1;
+          transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active {
+          background: var(--primary);
+          color: white;
+        }
+        
+        .step-indicator.completed {
+          background: var(--secondary);
+          color: white;
+        }
+        
+        .modal {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0,0,0,0.5);
+          justify-content: center;
+          align-items: center;
+          z-index: 1000;
+        }
+        
+        .modal-content {
+          background: white;
+          padding: 2rem;
+          border-radius: 15px;
+          max-width: 600px;
+          width: 90%;
+          max-height: 80vh;
+          overflow-y: auto;
+        }
+        
+        .question-container {
+          margin: 2rem 0;
+        }
+        
+        .options-container {
+          display: grid;
+          gap: 1rem;
+          margin: 1rem 0;
+        }
+        
+        .option-btn {
+          background: var(--bg);
+          border: 2px solid var(--primary);
+          padding: 1rem;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        
+        .option-btn:hover {
+          background: var(--primary);
+          color: white;
+        }
+        
+        .option-btn.selected {
+          background: var(--primary);
+          color: white;
+        }
+        
+        .modal-footer {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 2rem;
+        }
+        
+        .badge {
+          position: absolute;
+          top: -10px;
+          right: -10px;
+          background: var(--accent);
+          color: white;
+          border-radius: 50%;
+          width: 24px;
+          height: 24px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 12px;
+          animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+          0% { transform: scale(1); }
+          50% { transform: scale(1.1); }
+          100% { transform: scale(1); }
+        }
+        
+        .results-container {
+          display: grid;
+          gap: 2rem;
+          margin: 2rem 0;
+        }
+        
+        .career-matches {
+          background: var(--bg);
+          padding: 1.5rem;
+          border-radius: 10px;
+        }
+        
+        .career-match-card {
+          background: white;
+          padding: 1rem;
+          margin: 1rem 0;
+          border-radius: 8px;
+          border-left: 4px solid var(--primary);
+        }
+        
+        .match-score {
+          background: var(--primary);
+          color: white;
+          padding: 0.25rem 0.5rem;
+          border-radius: 15px;
+          font-size: 0.9rem;
+          display: inline-block;
+          margin-left: 1rem;
+        }
+        
+        .assessment-insights {
+          display: grid;
+          gap: 2rem;
+        }
+        
+        .strengths-weaknesses, .next-steps, .resources {
+          background: var(--bg);
+          padding: 1.5rem;
+          border-radius: 10px;
+        }
+        
+        .resource-link {
+          display: block;
+          padding: 0.5rem;
+          margin: 0.5rem 0;
+          background: white;
+          border-radius: 5px;
+          text-decoration: none;
+          color: var(--primary);
+          transition: background 0.3s ease;
+        }
+        
+        .resource-link:hover {
+          background: var(--bg);
+        }
+        </style>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&amp;display=swap" rel="stylesheet">
+        </head>
+        <body>
+        
+        <div class="app-container">
+          <div class="welcome-section">
+            <h1>Welcome to TechQuest</h1>
+            <p>Your personal guide to finding the perfect tech career</p>
+          </div>
+        
+          <div class="assessment-progress">
+            <div class="progress-step">
+              <div class="step-indicator active">1</div>
+              <span>Personality</span>
+            </div>
+            <div class="progress-step">
+              <div class="step-indicator">2</div>
+              <span>Skills</span>
+            </div>
+            <div class="progress-step">
+              <div class="step-indicator">3</div>
+              <span>Interests</span>
+            </div>
+            <div class="progress-step">
+              <div class="step-indicator">4</div>
+              <span>Work Style</span>
+            </div>
+          </div>
+        
+          <div class="assessment-container">
+            <div class="assessment-card" id="personalityCard">
+              <h3>Personality Assessment</h3>
+              <p>Let&apos;s start by understanding your personality type and work preferences.</p>
+              <div class="progress-bar">
+                <div class="progress-fill" id="personalityProgress"></div>
+              </div>
+              <button class="btn" onclick="startAssessment('personality')">Begin Assessment</button>
+            </div>
+        
+            <div class="assessment-card" id="skillsCard">
+              <h3>Skills Evaluation</h3>
+              <p>Assess your current technical skills and identify areas for growth.</p>
+              <div class="progress-bar">
+                <div class="progress-fill" id="skillsProgress"></div>
+              </div>
+              <button class="btn" onclick="startAssessment('skills')">Start Evaluation</button>
+            </div>
+        
+            <div class="assessment-card" id="interestsCard">
+              <h3>Interest Mapping</h3>
+              <p>Explore different tech domains and discover what excites you.</p>
+              <div class="progress-bar">
+                <div class="progress-fill" id="interestsProgress"></div>
+              </div>
+              <button class="btn" onclick="startAssessment('interests')">Explore Interests</button>
+            </div>
+        
+            <div class="assessment-card" id="workStyleCard">
+              <h3>Work Style Quiz</h3>
+              <p>Determine your ideal work environment and collaboration preferences.</p>
+              <div class="progress-bar">
+                <div class="progress-fill" id="workStyleProgress"></div>
+              </div>
+              <button class="btn" onclick="startAssessment('workStyle')">Take Quiz</button>
+            </div>
+          </div>
+        
+          <div class="floating-guide" onclick="showGuide()">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <path d="M12 16v-4M12 8h.01"/>
+            </svg>
+            <div class="badge">AI</div>
+          </div>
+        </div>
+        
+        <div id="assessmentModal" class="modal">
+          <div class="modal-content">
+            <h2 id="modalTitle">Assessment</h2>
+            <div class="question-container">
+              <h3 id="questionText"></h3>
+              <div id="optionsContainer" class="options-container"></div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn" onclick="previousQuestion()" id="prevBtn">Previous</button>
+              <button class="btn" onclick="nextQuestion()" id="nextBtn">Next</button>
+            </div>
+          </div>
+        </div>
+        
+        <div id="resultsModal" class="modal">
+          <div class="modal-content">
+            <h2>Your Tech Career Path Results</h2>
+            <div class="results-container">
+              <div class="career-matches">
+                <h3>Top Career Matches</h3>
+                <div id="careerSuggestions"></div>
+              </div>
+              
+              <div class="assessment-insights">
+                <div class="strengths-weaknesses">
+                  <h3>Your Profile</h3>
+                  <div class="strengths">
+                    <h4>Strengths</h4>
+                    <ul id="strengthsList"></ul>
+                  </div>
+                  <div class="areas-improvement">
+                    <h4>Areas for Growth</h4>
+                    <ul id="improvementList"></ul>
+                  </div>
+                </div>
+                
+                <div class="next-steps">
+                  <h3>Recommended Next Steps</h3>
+                  <div class="immediate-steps">
+                    <h4>Start Now</h4>
+                    <ul id="immediateSteps"></ul>
+                  </div>
+                  <div class="long-term">
+                    <h4>Long Term Goals</h4>
+                    <ul id="longTermSteps"></ul>
+                  </div>
+                </div>
+                
+                <div class="resources">
+                  <h3>Learning Resources</h3>
+                  <div id="learningResources"></div>
+                </div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn" onclick="hideResultsModal()">Close</button>
+              <button class="btn" onclick="downloadResults()">Download Report</button>
+            </div>
+          </div>
+        </div>
+        
+        <script>let currentAssessment = null;
+        let currentQuestionIndex = 0;
+        const assessmentData = {
+          personality: {
+            questions: [{
+              question: "How do you prefer to recharge?",
+              options: ["Spending time alone", "Being around others", "A mix of both", "Through physical activity"]
+            }, {
+              question: "When solving problems, do you tend to:",
+              options: ["Follow your intuition", "Analyze data and facts", "Seek others' opinions", "Try different approaches"]
+            }, {
+              question: "In a team setting, you typically:",
+              options: ["Take the lead", "Support others", "Mediate conflicts", "Focus on execution"]
+            }],
+            progress: 0,
+            answers: []
+          },
+          skills: {
+            questions: [{
+              question: "Have you ever done any coding or programming?",
+              options: ["Never", "Basic HTML/CSS", "Some programming", "Experienced developer"]
+            }, {
+              question: "How comfortable are you with technology?",
+              options: ["Very comfortable", "Somewhat comfortable", "Neutral", "Still learning"]
+            }, {
+              question: "Which tasks do you enjoy most?",
+              options: ["Problem solving", "Design and creativity", "Analysis and data", "Communication and coordination"]
+            }],
+            progress: 0,
+            answers: []
+          },
+          interests: {
+            questions: [{
+              question: "Which tech field interests you most?",
+              options: ["Web Development", "Data Science", "Cybersecurity", "Product Management"]
+            }, {
+              question: "What aspect of technology fascinates you?",
+              options: ["Creating new things", "Solving complex problems", "Helping others", "Understanding how things work"]
+            }, {
+              question: "Which emerging technology excites you?",
+              options: ["Artificial Intelligence", "Blockchain", "Virtual Reality", "Internet of Things"]
+            }],
+            progress: 0,
+            answers: []
+          },
+          workStyle: {
+            questions: [{
+              question: "What's your ideal work environment?",
+              options: ["Remote work", "Office setting", "Hybrid model", "Flexible arrangement"]
+            }, {
+              question: "How do you prefer to work?",
+              options: ["Independently", "In a team", "Mix of both", "Project-dependent"]
+            }, {
+              question: "What's your preferred pace of work?",
+              options: ["Fast-paced", "Steady and methodical", "Variable", "Deadline-driven"]
+            }],
+            progress: 0,
+            answers: []
+          }
+        };
+        function startAssessment(type) {
+          currentAssessment = type;
+          currentQuestionIndex = 0;
+          showModal();
+          updateQuestion();
+        }
+        function showModal() {
+          const modal = document.getElementById('assessmentModal');
+          modal.style.display = 'flex';
+          document.getElementById('modalTitle').textContent = `${currentAssessment.charAt(0).toUpperCase() + currentAssessment.slice(1)} Assessment`;
+        }
+        function hideModal() {
+          const modal = document.getElementById('assessmentModal');
+          modal.style.display = 'none';
+        }
+        function updateQuestion() {
+          const questions = assessmentData[currentAssessment].questions;
+          const question = questions[currentQuestionIndex];
+          document.getElementById('questionText').textContent = question.question;
+          const optionsContainer = document.getElementById('optionsContainer');
+          optionsContainer.innerHTML = '';
+          question.options.forEach((option, index) => {
+            const button = document.createElement('button');
+            button.className = 'option-btn';
+            if (assessmentData[currentAssessment].answers[currentQuestionIndex] === index) {
+              button.classList.add('selected');
+            }
+            button.textContent = option;
+            button.onclick = () => selectOption(index);
+            optionsContainer.appendChild(button);
+          });
+          document.getElementById('nextBtn').disabled = assessmentData[currentAssessment].answers[currentQuestionIndex] === undefined;
+          updateNavigationButtons();
+        }
+        function selectOption(optionIndex) {
+          const options = document.querySelectorAll('.option-btn');
+          options.forEach(opt => opt.classList.remove('selected'));
+          options[optionIndex].classList.add('selected');
+          assessmentData[currentAssessment].answers[currentQuestionIndex] = optionIndex;
+          document.getElementById('nextBtn').disabled = false;
+        }
+        function updateNavigationButtons() {
+          const prevBtn = document.getElementById('prevBtn');
+          const nextBtn = document.getElementById('nextBtn');
+          prevBtn.style.visibility = currentQuestionIndex > 0 ? 'visible' : 'hidden';
+          nextBtn.textContent = currentQuestionIndex === assessmentData[currentAssessment].questions.length - 1 ? 'Finish' : 'Next';
+        }
+        function previousQuestion() {
+          if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            updateQuestion();
+          }
+        }
+        function nextQuestion() {
+          const questions = assessmentData[currentAssessment].questions;
+          if (assessmentData[currentAssessment].answers[currentQuestionIndex] === undefined) {
+            alert("Please select an answer before continuing.");
+            return;
+          }
+          if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            updateQuestion();
+          } else {
+            const allAnswered = assessmentData[currentAssessment].answers.length === questions.length && !assessmentData[currentAssessment].answers.includes(undefined);
+            if (!allAnswered) {
+              alert("Please answer all questions before completing the assessment.");
+              return;
+            }
+            completeAssessment();
+          }
+        }
+        async function completeAssessment() {
+          const progress = 100;
+          assessmentData[currentAssessment].progress = progress;
+          document.getElementById(`${currentAssessment}Progress`).style.width = `${progress}%`;
+          const steps = document.querySelectorAll('.step-indicator');
+          const currentStep = Array.from(steps).find(step => step.classList.contains('active'));
+          currentStep.classList.remove('active');
+          currentStep.classList.add('completed');
+          const nextStep = currentStep.parentElement.nextElementSibling?.querySelector('.step-indicator');
+          if (nextStep) {
+            nextStep.classList.add('active');
+          }
+          hideModal();
+          const allAssessmentsComplete = Object.keys(assessmentData).every(assessment => assessmentData[assessment].progress === 100);
+          if (allAssessmentsComplete) {
+            const analysis = await getAIGuidance();
+            if (analysis) {
+              showResults(analysis);
+            }
+          } else {
+            const assessmentTypes = ['personality', 'skills', 'interests', 'workStyle'];
+            const currentIndex = assessmentTypes.indexOf(currentAssessment);
+            if (currentIndex < assessmentTypes.length - 1) {
+              setTimeout(() => {
+                startAssessment(assessmentTypes[currentIndex + 1]);
+              }, 500);
+            }
+          }
+        }
+        async function getAIGuidance() {
+          try {
+            const response = await fetch('/api/ai_completion', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+              },
+              body: JSON.stringify({
+                prompt: `Analyze the assessment results and provide career guidance.
+                
+                <typescript-interface>
+                interface GuidanceResponse {
+                  careerSuggestions: Array<{
+                    title: string;
+                    match: number;
+                    description: string;
+                  }>;
+                  strengthsAndWeaknesses: {
+                    strengths: string[];
+                    areasForImprovement: string[];
+                  };
+                  nextSteps: {
+                    immediate: string[];
+                    longTerm: string[];
+                  };
+                  learningResources: Array<{
+                    type: string;
+                    name: string;
+                    url: string;
+                  }>;
+                }
+                </typescript-interface>
+                
+                <example>
+                {
+                  "careerSuggestions": [
+                    {
+                      "title": "Frontend Developer",
+                      "match": 85,
+                      "description": "Your creative problem-solving and interest in visual design make this a strong match."
+                    }
+                  ],
+                  "strengthsAndWeaknesses": {
+                    "strengths": ["Creative thinking", "Problem solving"],
+                    "areasForImprovement": ["Technical skills", "Team collaboration"]
+                  },
+                  "nextSteps": {
+                    "immediate": ["Complete a basic HTML/CSS course"],
+                    "longTerm": ["Build a portfolio of projects"]
+                  },
+                  "learningResources": [
+                    {
+                      "type": "Course",
+                      "name": "Web Development Bootcamp",
+                      "url": "https://example.com/course"
+                    }
+                  ]
+                }
+                </example>`,
+                data: assessmentData
+              })
+            });
+            return await response.json();
+          } catch (error) {
+            console.error('Error getting AI guidance:', error);
+            return null;
+          }
+        }
+        function showGuide() {
+          alert("Need help? Our AI guide is here to assist you on your journey to finding the perfect tech career!");
+        }
+        document.addEventListener('DOMContentLoaded', () => {
+          const guide = document.querySelector('.floating-guide');
+          guide.style.animation = 'bounce 2s infinite';
+        });
+        document.getElementById('assessmentModal').addEventListener('click', e => {
+          if (e.target === document.getElementById('assessmentModal')) {
+            hideModal();
+          }
+        });
+        function showResults(analysis) {
+          const modal = document.getElementById('resultsModal');
+          modal.style.display = 'flex';
+          const suggestionsContainer = document.getElementById('careerSuggestions');
+          suggestionsContainer.innerHTML = analysis.careerSuggestions.map(career => `
+            <div class="career-match-card">
+              <h4>${career.title} <span class="match-score">${career.match}% Match</span></h4>
+              <p>${career.description}</p>
+            </div>
+          `).join('');
+          document.getElementById('strengthsList').innerHTML = analysis.strengthsAndWeaknesses.strengths.map(strength => `<li>${strength}</li>`).join('');
+          document.getElementById('improvementList').innerHTML = analysis.strengthsAndWeaknesses.areasForImprovement.map(area => `<li>${area}</li>`).join('');
+          document.getElementById('immediateSteps').innerHTML = analysis.nextSteps.immediate.map(step => `<li>${step}</li>`).join('');
+          document.getElementById('longTermSteps').innerHTML = analysis.nextSteps.longTerm.map(step => `<li>${step}</li>`).join('');
+          document.getElementById('learningResources').innerHTML = analysis.learningResources.map(resource => `
+            <a href="${resource.url}" class="resource-link" target="_blank">
+              ${resource.name} <span class="resource-type">(${resource.type})</span>
+            </a>
+          `).join('');
+        }
+        function hideResultsModal() {
+          document.getElementById('resultsModal').style.display = 'none';
+        }
+        function downloadResults() {
+          const resultsContainer = document.querySelector('.results-container');
+          
+          const careerMatches = Array.from(document.querySelectorAll('.career-match-card'))
+            .map(card => {
+              const title = card.querySelector('h4').textContent;
+              const description = card.querySelector('p').textContent;
+              return `${title}\n${description}\n`;
+            })
+            .join('\n');
+        
+          const strengths = Array.from(document.getElementById('strengthsList').children)
+            .map(li => `- ${li.textContent}`)
+            .join('\n');
+            
+          const improvements = Array.from(document.getElementById('improvementList').children)
+            .map(li => `- ${li.textContent}`)
+            .join('\n');
+        
+          const immediateSteps = Array.from(document.getElementById('immediateSteps').children)
+            .map(li => `- ${li.textContent}`)
+            .join('\n');
+            
+          const longTermSteps = Array.from(document.getElementById('longTermSteps').children)
+            .map(li => `- ${li.textContent}`)
+            .join('\n');
+        
+          const resources = Array.from(document.querySelectorAll('.resource-link'))
+            .map(link => `- ${link.textContent}`)
+            .join('\n');
+        
+          const reportContent = `
+        TechQuest Career Assessment Results
+        =================================
+        
+        CAREER MATCHES
+        -------------
+        ${careerMatches}
+        
+        YOUR PROFILE
+        -----------
+        Strengths:
+        ${strengths}
+        
+        Areas for Growth:
+        ${improvements}
+        
+        NEXT STEPS
+        ----------
+        Immediate Steps:
+        ${immediateSteps}
+        
+        Long Term Goals:
+        ${longTermSteps}
+        
+        RECOMMENDED RESOURCES
+        -------------------
+        ${resources}
+        `;
+        
+          const blob = new Blob([reportContent], { type: 'text/plain;charset=utf-8' });
+          
+          const url = window.URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = 'TechQuest-Career-Report.txt';
+          
+          document.body.appendChild(link);
+          link.click();
+          
+          setTimeout(() => {
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(url);
+          }, 100);
+        }
+        document.getElementById('resultsModal').addEventListener('click', e => {
+          if (e.target === document.getElementById('resultsModal')) {
+            hideResultsModal();
+          }
+        });</script>
+        </body></html>
+</html>
